@@ -1,9 +1,12 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
 using System;
+using CopilotChat.MemoryPipeline;
 using CopilotChat.Shared;
+using CopilotChat.Shared.Ocr.Tesseract;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.KernelMemory;
@@ -15,11 +18,16 @@ using Microsoft.KernelMemory.Diagnostics;
 
 var builder = WebApplication.CreateBuilder();
 
+var docIntellOptions = builder.Configuration.GetSection($"{MemoryConfiguration.KernelMemorySection}:{MemoryConfiguration.ServicesSection}:AzureAIDocIntel")
+                        .Get<AzureAIDocIntelConfig>();
+
 IKernelMemory memory =
     new KernelMemoryBuilder(builder.Services)
         .FromAppSettings()
-        .WithCustomOcr(builder.Configuration)
         .Build();
+
+builder.Services.AddSingleton< AzureAIDocIntelConfig>(sp => docIntellOptions);
+builder.Services.AddSingleton< AzureAIDocIntelPdfDecoder> ();
 
 builder.Services.AddSingleton(memory);
 
