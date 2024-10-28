@@ -56,8 +56,10 @@ internal static class ISemanticMemoryClientExtensions
 
         IKernelMemory memory = memoryBuilder.FromMemoryConfiguration(
             memoryConfig,
-            appBuilder.Configuration
-        ).Build();
+            appBuilder.Configuration            
+        )
+            .WithContentDecoder<AzureAIDocIntelPdfDecoder>()
+            .Build();
 
         appBuilder.Services.AddSingleton(memory);
     }
